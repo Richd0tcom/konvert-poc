@@ -8,11 +8,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
-        url: configService.get('MYSQL_URL'),
+        url: configService.get('MYSQL_URI'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname+ 'migrations/**/*{.ts,.js}'],
         autoLoadEntities: true,
-        synchronize: configService.getOrThrow('MYSQL_SYNCHRONIZE'),
         migrationsTableName: 'migrations',
       }),
       inject: [ConfigService],

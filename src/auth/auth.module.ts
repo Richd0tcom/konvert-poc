@@ -7,6 +7,8 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 import { CasbinModule } from './casbin/casbin.module';
 import { newEnforcer } from 'casbin';
 import { join } from 'node:path';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '@common/entities';
 
 @Module({
   imports: [
@@ -17,7 +19,6 @@ import { join } from 'node:path';
         signOptions: { expiresIn: '2hr' },
       })
     }
-      
     ),
     CasbinModule.forRootAsync({
       useFactory: async () => {
@@ -25,7 +26,8 @@ import { join } from 'node:path';
         
         return { enforcer };
       },
-    })
+    }),
+    TypeOrmModule.forFeature([User])
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

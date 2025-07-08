@@ -14,7 +14,7 @@ import { Repository } from 'typeorm';
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    @InjectRepository(User) private userModel: Repository<User>,
+    @InjectRepository(User) private readonly userModel: Repository<User>,
   ) { }
   async login(input: LoginInput): Promise<AuthResponse> {
     const user = await this.userModel.findOne({ where: { email: input.email } });
