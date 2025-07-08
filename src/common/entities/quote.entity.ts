@@ -11,9 +11,6 @@ export class Quote {
     exchange_rate: number;
 
     @Column('decimal', { precision: 18, scale: 8 })
-    calculated_fee: number;
-
-    @Column('decimal', { precision: 18, scale: 8 })
     resulting_fiat_amount: number;
 
     @Column('timestamp')

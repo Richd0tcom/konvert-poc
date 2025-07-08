@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAdminDto } from './dto/create-admin.dto';
-import { UpdateAdminDto } from './dto/update-admin.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Quote } from '@common/entities';
 
 @Injectable()
 export class AdminService {
-  create(createAdminDto: CreateAdminDto) {
-    return 'This action adds a new admin';
+  constructor(
+    @InjectRepository(Quote) private readonly quoteRepo: Repository<Quote>
+  ){}
+
+  async findAll() {
+    const quotes = await this.quoteRepo.createQueryBuilder()
+    .orderBy('timestamp', 'DESC')
+    .limit(50)
+    .getMany()
+
+    return quotes
   }
 
-  findAll() {
-    return `This action returns all admin`;
-  }
+  async exportToCSV(){
+    const quotes = await this.quoteRepo.createQueryBuilder()
+    .orderBy('timestamp', 'DESC')
+    .limit(50)
+    .getMany()
 
-  findOne(id: number) {
-    return `This action returns a #${id} admin`;
-  }
+    const csv = quotes.map((quote) => {
+      return {
+        id: quote.id,
+        input_amount: quote.input_amount,
+        input_currency: quote.input_currency,
+        output_currency: quote.output_currency,
+        exchange_rate: quote.exchange_rate,
+        fee: quote.fee,
+        resulting_fiat_amount: quote.resulting_fiat_amount,
+        timestamp: quote.timestamp,
+        user: quote.user
+      }
+    })
 
-  update(id: number, updateAdminDto: UpdateAdminDto) {
-    return `This action updates a #${id} admin`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} admin`;
+    const csvString = csv.join('\n')
+    return csvString
   }
 }

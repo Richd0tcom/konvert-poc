@@ -1,98 +1,121 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Cross-Border Quote API (Crypto-to-Fiat Exchange)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project is a backend service designed to provide real-time quotes for converting USDT to various local fiat currencies (e.g., NGN, KES, ZAR). It fetches live exchange rates, calculates applicable fees, and stores all transaction quotes in a database.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Table of Contents
 
-## Description
+- [Cross-Border Quote API (Crypto-to-Fiat Exchange)](#cross-border-quote-api-crypto-to-fiat-exchange)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Technology Stack](#technology-stack)
+  - [Project Structure](#project-structure)
+  - [API Endpoints](#api-endpoints)
+    - [Public Endpoints](#public-endpoints)
+    - [Admin Endpoints](#admin-endpoints)
+  - [Setup and Installation](#setup-and-installation)
+  - [Gap Analysis \& Future Improvements](#gap-analysis--future-improvements)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Features
 
-## Project setup
+- **Real-Time Exchange Rates**: Fetches live crypto-to-fiat exchange rates from the CoinGecko API.
+- **Quote Generation**: Calculates the final fiat amount after applying a service fee.
+- **Quote History**: Stores every quote request in a MySQL database for tracking and auditing.
+- **Admin Functionality**: Provides an endpoint for administrators to view the 50 most recent quotes.
 
-```bash
-$ pnpm install
+## Technology Stack
+
+- **Framework**: [NestJS](https://nestjs.com/)
+- **Language**: TypeScript
+- **Database**: MySQL
+- **ORM**: TypeORM
+- **API Integration**: Axios for HTTP requests to CoinGecko
+- **Authentication**: Basic JWT setup (incomplete)
+- **Authorization**: Casbin for role-based access control (configured but not implemented)
+
+## Project Structure
+
+The project follows a standard NestJS modular architecture:
+
+```
+src
+├── admin         # Handles admin-specific functionality
+├── auth          # Manages user authentication and JWT strategy
+├── common        # Shared modules, entities, and constants
+├── quote         # Core logic for generating quotes
+├── main.ts       # Application entry point
+└── app.module.ts # Root module
 ```
 
-## Compile and run the project
+## API Endpoints
 
-```bash
-# development
-$ pnpm run start
+### Public Endpoints
 
-# watch mode
-$ pnpm run start:dev
+- **POST `/api/quote`**
+  - **Status**: ⚠️ **Not Implemented**. The core logic exists in `QuoteService`, but the controller endpoint has not been created.
+  - **Description**: Intended to accept a USDT amount and a destination country to return a real-time conversion quote.
 
-# production mode
-$ pnpm run start:prod
-```
+### Admin Endpoints
 
-## Run tests
+- **GET `/admin`**
+  - **Status**: ✅ **Implemented**
+  - **Description**: Retrieves the last 50 quotes from the database.
+  - **Protection**: ⚠️ **Unprotected**. This endpoint is currently public and lacks admin-only access control.
 
-```bash
-# unit tests
-$ pnpm run test
+- **GET `/admin/export`**
+  - **Status**: ⚠️ **Not Implemented**. The service logic `exportToCSV` exists, but it is not exposed via a controller endpoint.
+  - **Description**: Intended to export the last 50 quotes to a CSV file.
 
-# e2e tests
-$ pnpm run test:e2e
+## Setup and Installation
 
-# test coverage
-$ pnpm run test:cov
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    ```
 
-## Deployment
+2.  **Install dependencies:**
+    ```bash
+    pnpm install
+    ```
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+3.  **Set up environment variables:**
+    Create a `.env` file in the root directory and populate it with the necessary values (see `.env.example` if available).
+    ```
+    COIN_GECKO_API_URL=https://api.coingecko.com/api/v3
+    CONVERSION_FEE_PERCENTAGE=0.01
+    DB_HOST=localhost
+    DB_PORT=3306
+    DB_USERNAME=user
+    DB_PASSWORD=password
+    DB_DATABASE=konvert
+    JWT_SECRET=your-secret-key
+    ```
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+4.  **Run database migrations:**
+    ```bash
+    pnpm typeorm migration:run
+    ```
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+5.  **Start the development server:**
+    ```bash
+    pnpm start:dev
+    ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The application will be running at `http://localhost:3000`.
 
-## Resources
+## Gap Analysis & Future Improvements
 
-Check out a few resources that may come in handy when working with NestJS:
+This section outlines the discrepancies between the project requirements and the current implementation.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- **`POST /api/quote` Endpoint**: The `QuoteController` is missing the route handler to expose the `getQuote` service method. This is the highest priority gap.
 
-## Support
+- **Admin Endpoint for CSV Export**: The `exportToCSV` method in `AdminService` is not connected to any controller route, making it inaccessible via the API.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- **Security**: 
+  - **Admin Protection**: The admin endpoints are not protected. The existing Casbin configuration should be integrated using a guard to restrict access to authorized administrators.
+  - **Input Validation**: There is no validation on the `GetQuoteInput` DTO. Validation pipes should be added to handle invalid inputs like negative amounts or unsupported country codes.
+  - **Rate Limiting**: The API is vulnerable to abuse. A rate-limiting solution (e.g., `nestjs-throttler`) should be implemented.
 
-## Stay in touch
+- **Dynamic Fee Structure**: The fee is calculated using a single, hardcoded percentage. The system should be enhanced to support a dynamic, country-based fee structure, potentially managed via a separate database table.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **Error Handling**: The current error handling is basic. A more robust global exception filter should be implemented to provide clear and consistent error responses.
 
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

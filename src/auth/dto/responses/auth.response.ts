@@ -8,6 +8,5 @@ export class AuthResponse {
 
 export class UserWithAuth {
     id: string
-    roleId: string
     role: UserRole
 }
