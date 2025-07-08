@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, UnauthorizedException } from '
 
 import { JwtService } from '@nestjs/jwt';
 import { LoginInput } from './dto/input/login.input';
-import { checkPassword } from '@common/helpers/password';
+import { checkPassword, hashPassword } from '@common/helpers/password';
 import { AuthResponse } from './dto/responses/auth.response';
 import { RegisterInput } from './dto/input/register.input';
 import { UserRole } from '@common/enums';
@@ -42,7 +42,7 @@ export class AuthService {
 
     user  = await this.userModel.save({
       email: input.email,
-      password: input.password,
+      password: hashPassword(input.password),
       role: UserRole.Employee
     })
 
