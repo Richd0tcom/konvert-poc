@@ -1,5 +1,5 @@
 import { UserRole } from '@common/enums';
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -31,7 +31,7 @@ export class Quote {
     @Column()
     output_currency: string;
 
-    @Column()
+    @ManyToOne(() => User, { eager: true, nullable: false, })
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     user: User;
 }
