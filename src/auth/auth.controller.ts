@@ -6,6 +6,7 @@ import { HttpExceptionFilter } from '@common/filters/exception.filter';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { UserWithAuth } from './dto/responses/auth.response';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @UseFilters(HttpExceptionFilter)
 @Controller('auth')
@@ -22,6 +23,7 @@ export class AuthController {
     return this.authService.login(createAuthDto);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('me')
   profile(@CurrentUser() input: UserWithAuth) {

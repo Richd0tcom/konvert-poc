@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpCode, HttpStatus, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, NotImplementedException } from '@nestjs/common';
 import { GetQuoteInput } from './dto/input.dto';
 import { ConfigService } from '@nestjs/config';
 import { CG_PRICE_ENDPOINT, CG_SUPPORTED_CURRENCIES_ENDPOINT } from '@common/constants';
@@ -14,29 +14,39 @@ export class QuoteService {
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
         @InjectRepository(Quote) private readonly quoteRepo: Repository<Quote>
-    ){}
+    ) { }
 
 
     private async doRequest<T>(url: string): Promise<T> {
+
         try {
-            const response = await this.httpService.axiosRef.get<T>(url);
+            const apiKey = this.configService.get<string>('COINGECKO_API_KEY');
+            const response = await this.httpService.axiosRef.get<T>(url, {
+                headers: {
+                    CG_API_KEY_HEADER: apiKey
+                }
+            });
             return response.data;
         } catch (error) {
-            throw new Error(`Failed to do request: ${error.message}`);
+            console.log(Object.keys(error))
+            if (error.code == HttpStatus.TOO_MANY_REQUESTS) {
+                throw new NotAcceptableException("Too many requests")
+            }
+            throw new InternalServerErrorException(`Failed to do request: ${error.message}`);
         }
     }
 
     async geCGQuote(input: GetQuoteInput) {
-        const baseurl = this.configService.get<string>('COIN_GECKO_API_URL');
-        const url = `${baseurl}/${CG_PRICE_ENDPOINT}?ids=${input.input_currency}&vs_currencies=${input.output_currency}`;
+        const baseurl = this.configService.get<string>('COINGECKO_BASE_URL');
+        const url = `${baseurl}/${CG_PRICE_ENDPOINT}?symbols=${input.input_currency}&vs_currencies=${input.output_currency}`;
 
         const response = await this.doRequest<CGQuote>(url);
 
         return response;
-    }    
+    }
 
     async getSupportedCurrencies() {
-        const baseurl = this.configService.get<string>('COIN_GECKO_API_URL');
+        const baseurl = this.configService.get<string>('COINGECKO_BASE_URL');
         const url = `${baseurl}/${CG_SUPPORTED_CURRENCIES_ENDPOINT}`;
 
         const response = await this.doRequest<string[]>(url);
@@ -46,6 +56,10 @@ export class QuoteService {
 
     async getQuote(input: GetQuoteInput, userId: string) {
         const response = await this.geCGQuote(input);
+
+        if (!response?.[input.input_currency]?.[input.output_currency]) {
+            throw new NotFoundException(`Exchange rate not found for ${input.input_currency} → ${input.output_currency}`);
+        }
 
         const feePercentage = this.configService.getOrThrow<number>('CONVERSION_FEE_PERCENTAGE');
 
@@ -62,7 +76,7 @@ export class QuoteService {
             fee,
             resulting_fiat_amount: resulting_fiat,
             timestamp: new Date(),
-            user: { id: userId }   
+            user: { id: userId }
         });
 
         await this.quoteRepo.save(quote);

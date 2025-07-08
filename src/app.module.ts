@@ -6,13 +6,20 @@ import { AdminModule } from './admin/admin.module';
 import { QuoteModule } from './quote/quote.module';
 import { DatabaseModule } from '@common/db/db.module';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
     isGlobal: true,
-  }), AuthModule, AdminModule, QuoteModule, DatabaseModule],
+  }), AuthModule, AdminModule, QuoteModule, DatabaseModule, ThrottlerModule.forRoot({
+    throttlers: [],
+  }),],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: ThrottlerGuard,
+  },],
 })
 export class AppModule { }

@@ -32,7 +32,7 @@ export class AuthService {
       accessToken
     }
   }
-  async register(input: RegisterInput) {
+  async register(input: RegisterInput): Promise<AuthResponse> {
     let user = await this.userModel.findOne({ where: { email: input.email } });
 
 
@@ -46,7 +46,15 @@ export class AuthService {
       role: UserRole.Employee
     })
 
-    return user
+    const accessToken = this.jwtService.sign({
+      id: user.id,
+      role: user.role
+    })
+
+    return {
+      user,
+      accessToken
+    }
   }
 
   async profile(id: string) {

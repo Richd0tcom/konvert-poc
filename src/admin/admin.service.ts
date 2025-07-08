@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Quote } from '@common/entities';
+import { json2csv  } from 'json-2-csv';
 
 @Injectable()
 export class AdminService {
@@ -38,7 +39,10 @@ export class AdminService {
       }
     })
 
-    const csvString = csv.join('\n')
+    const csvString = json2csv(csv, {
+
+    })
+
     return csvString
   }
 }
