@@ -8,18 +8,29 @@ import { DatabaseModule } from '@common/db/db.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { JoiPipeModule } from 'nestjs-joi';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-    isGlobal: true,
-  }), AuthModule, AdminModule, QuoteModule, DatabaseModule, ThrottlerModule.forRoot({
-    throttlers: [],
-  }),],
+      isGlobal: true,
+    }),
+    AuthModule,
+    AdminModule,
+    QuoteModule,
+    DatabaseModule,
+    ThrottlerModule.forRoot({
+      throttlers: [],
+    }),
+    JoiPipeModule
+  ],
   controllers: [AppController],
-  providers: [AppService, {
-    provide: APP_GUARD,
-    useClass: ThrottlerGuard,
-  },],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
-export class AppModule { }
+export class AppModule {}

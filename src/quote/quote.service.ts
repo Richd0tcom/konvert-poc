@@ -28,7 +28,6 @@ export class QuoteService {
             });
             return response.data;
         } catch (error) {
-            console.log(Object.keys(error))
             if (error.code == HttpStatus.TOO_MANY_REQUESTS) {
                 throw new NotAcceptableException("Too many requests")
             }
@@ -40,9 +39,7 @@ export class QuoteService {
         const baseurl = this.configService.get<string>('COINGECKO_BASE_URL');
         const url = `${baseurl}/${CG_PRICE_ENDPOINT}?symbols=${input.input_currency}&vs_currencies=${input.output_currency}`;
 
-        const response = await this.doRequest<CGQuote>(url);
-
-        return response;
+        return await this.doRequest<CGQuote>(url);
     }
 
     async getSupportedCurrencies() {

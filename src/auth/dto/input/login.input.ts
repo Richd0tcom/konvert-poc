@@ -1,7 +1,13 @@
 import { PickType } from "@nestjs/mapped-types";
 import { RegisterInput } from "./register.input";
 import { ApiProperty } from "@nestjs/swagger";
+import Joi from "joi";
+import { JoiSchema, JoiSchemaOptions } from "nestjs-joi";
 
+
+@JoiSchemaOptions({
+  allowUnknown: false,
+})
 export class LoginInput extends PickType(RegisterInput,
   ['email', 'password'] as const
 ) {
@@ -9,6 +15,7 @@ export class LoginInput extends PickType(RegisterInput,
       example: 'rehmat.sayani@gmail.com',
       required: true
    })
+   @JoiSchema(Joi.string().email().required())
   email: string;
 
 
@@ -16,5 +23,6 @@ export class LoginInput extends PickType(RegisterInput,
       example: 'ghvjhgt76',
       required: true
    })
+   @JoiSchema(Joi.string().required())
   password: string;
 }
