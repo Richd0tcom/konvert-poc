@@ -1,3 +1,4 @@
+import { EXCLUDE_RESPONSE_INTERCEPTOR } from '@common/decorators/exclude-response.decorator';
 import {
     Injectable,
     NestInterceptor,
@@ -6,12 +7,23 @@ import {
     HttpException,
     HttpStatus,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
+    constructor(private reflector: Reflector) {}
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+
+        const excludeInterceptor = this.reflector.get<boolean>(
+      EXCLUDE_RESPONSE_INTERCEPTOR,
+      context.getHandler(),
+    );
+
+    if (excludeInterceptor) {
+      return next.handle();
+    }
         return next.handle().pipe(
             map((data) => ({
                 success: true,

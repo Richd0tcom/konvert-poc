@@ -7,6 +7,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { HttpExceptionFilter } from '@common/filters/exception.filter';
 import { CasbinGuard } from 'src/auth/guards/casbin.guard';
 import { RequirePermission } from '@common/decorators/casbin.decorator';
+import { ExcludeResponseInterceptor } from '@common/decorators/exclude-response.decorator';
 
 @ApiBearerAuth()
 @UseFilters(HttpExceptionFilter)
@@ -30,6 +31,7 @@ export class AdminController {
     },
   })
   @ApiProduces('text/csv')
+  @ExcludeResponseInterceptor()
   @RequirePermission('files', 'create')
   @Get('export')
   async exportToCSV(@Res({ passthrough: true }) res: Response) {

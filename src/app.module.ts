@@ -7,8 +7,9 @@ import { QuoteModule } from './quote/quote.module';
 import { DatabaseModule } from '@common/db/db.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JoiPipeModule } from 'nestjs-joi';
+import { ResponseInterceptor } from '@common/interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -31,6 +32,10 @@ import { JoiPipeModule } from 'nestjs-joi';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    }
   ],
 })
 export class AppModule {}
