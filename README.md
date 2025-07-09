@@ -88,17 +88,17 @@ src/
   - **Body:**  
     ```json
     {
-      "amount": 100,
-      "country": "NG"
+      "input_amount": 100,
+      "input_currency": "usdt"
+      "output_currency": "ngn"
     }
     ```
   - **Response:**  
     ```json
     {
-      "fiatAmount": 153000,
-      "fee": 1530,
-      "rate": 1530,
-      "currency": "NGN"
+    "exchange_rate": 1531.68,
+    "fee": 76584,
+    "resulting_fiat_amount": 7658400
     }
     ```
 
