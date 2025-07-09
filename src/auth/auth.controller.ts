@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseFilters, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseFilters, UseGuards, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterInput } from './dto/input/register.input';
 import { LoginInput } from './dto/input/login.input';
@@ -9,6 +9,7 @@ import { UserWithAuth } from './dto/responses/auth.response';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @UseFilters(HttpExceptionFilter)
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

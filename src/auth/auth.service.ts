@@ -18,19 +18,19 @@ export class AuthService {
   ) { }
   async login(input: LoginInput): Promise<AuthResponse> {
     const user = await this.userModel.findOne({ where: { email: input.email } });
-    if (!user || await checkPassword(user.password, input.password)) {
-      throw new UnauthorizedException('invalid credentials')
+    if (!user || !(await checkPassword(input.password, user.password))) {
+      throw new UnauthorizedException('invalid credentials');
     }
 
     const accessToken = this.jwtService.sign({
       id: user.id,
-      role: user.role
-    })
+      role: user.role,
+    });
 
     return {
       user,
-      accessToken
-    }
+      accessToken,
+    };
   }
   async register(input: RegisterInput): Promise<AuthResponse> {
     let user = await this.userModel.findOne({ where: { email: input.email } });
@@ -45,6 +45,10 @@ export class AuthService {
       password: hashPassword(input.password),
       role: UserRole.Employee
     })
+
+    if(!user) {
+      throw new BadRequestException('failed to create user')
+    }
 
     const accessToken = this.jwtService.sign({
       id: user.id,

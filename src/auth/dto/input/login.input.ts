@@ -1,7 +1,7 @@
 import { PickType } from "@nestjs/mapped-types";
 import { RegisterInput } from "./register.input";
 import { ApiProperty } from "@nestjs/swagger";
-import Joi from "joi";
+import * as Joi from 'joi';
 import { JoiSchema, JoiSchemaOptions } from "nestjs-joi";
 
 
