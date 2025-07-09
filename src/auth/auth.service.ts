@@ -33,14 +33,14 @@ export class AuthService {
     };
   }
   async register(input: RegisterInput): Promise<AuthResponse> {
-    let user = await this.userModel.findOne({ where: { email: input.email } });
+    let existing = await this.userModel.findOne({ where: { email: input.email } });
 
 
-    if (user) {
+    if (existing) {
       throw new BadRequestException('email already exists')
     }
 
-    user  = await this.userModel.save({
+    const user  = await this.userModel.save({
       email: input.email,
       password: hashPassword(input.password),
       role: UserRole.Employee

@@ -7,13 +7,15 @@ import { CGQuote } from '@common/types';
 import { Repository } from 'typeorm';
 import { Quote } from '@common/entities';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Fee } from '@common/entities/fee.entity';
 
 @Injectable()
 export class QuoteService {
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
-        @InjectRepository(Quote) private readonly quoteRepo: Repository<Quote>
+        @InjectRepository(Quote) private readonly quoteRepo: Repository<Quote>,
+        @InjectRepository(Fee) private readonly feesRepo: Repository<Fee>
     ) { }
 
 
@@ -58,7 +60,12 @@ export class QuoteService {
             throw new NotFoundException(`Exchange rate not found for ${input.input_currency} → ${input.output_currency}`);
         }
 
-        const feePercentage = this.configService.getOrThrow<number>('CONVERSION_FEE_PERCENTAGE');
+        
+        const defaultFee = this.configService.getOrThrow<number>('CONVERSION_FEE_PERCENTAGE');
+
+        const feePercentage = await this.feesRepo.findOne({
+            where: { countryCode: input.output_currency }
+        }).then(fee => fee?.amount ?? defaultFee);
 
         const exchangeRate = response[input.input_currency][input.output_currency];
 

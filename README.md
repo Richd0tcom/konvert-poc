@@ -1,121 +1,186 @@
-# Cross-Border Quote API (Crypto-to-Fiat Exchange)
+# Konvert Cross-Border Quote API
 
-This project is a backend service designed to provide real-time quotes for converting USDT to various local fiat currencies (e.g., NGN, KES, ZAR). It fetches live exchange rates, calculates applicable fees, and stores all transaction quotes in a database.
+A backend service for real-time USDT-to-fiat currency conversion, fee calculation, and quote management. Designed for cross-border crypto-to-fiat exchange use cases, with robust admin and export features.
+
+---
 
 ## Table of Contents
 
-- [Cross-Border Quote API (Crypto-to-Fiat Exchange)](#cross-border-quote-api-crypto-to-fiat-exchange)
+- [Konvert Cross-Border Quote API](#konvert-cross-border-quote-api)
   - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
   - [Features](#features)
   - [Technology Stack](#technology-stack)
-  - [Project Structure](#project-structure)
-  - [API Endpoints](#api-endpoints)
+  - [Architecture \& Project Structure](#architecture--project-structure)
+  - [API Documentation](#api-documentation)
+  - [Endpoints](#endpoints)
     - [Public Endpoints](#public-endpoints)
     - [Admin Endpoints](#admin-endpoints)
-  - [Setup and Installation](#setup-and-installation)
-  - [Gap Analysis \& Future Improvements](#gap-analysis--future-improvements)
+  - [Setup \& Installation](#setup--installation)
+  - [Environment Variables](#environment-variables)
+  - [Testing File Downloads](#testing-file-downloads)
+  - [Security](#security)
+  - [License](#license)
+
+---
+
+## Overview
+
+Konvert provides a RESTful API for converting USDT to local fiat currencies (e.g., NGN, KES, ZAR) using live exchange rates. It calculates fees, stores all quote requests, and offers admin endpoints for data export and monitoring.
+
+The API is documented with Swagger and is deployed to staging and production environments.
+
+---
 
 ## Features
 
-- **Real-Time Exchange Rates**: Fetches live crypto-to-fiat exchange rates from the CoinGecko API.
-- **Quote Generation**: Calculates the final fiat amount after applying a service fee.
-- **Quote History**: Stores every quote request in a MySQL database for tracking and auditing.
-- **Admin Functionality**: Provides an endpoint for administrators to view the 50 most recent quotes.
+- **Live Exchange Rates:** Fetches real-time crypto-to-fiat rates from CoinGecko.
+- **Quote Calculation:** Computes fiat value and applies service fees.
+- **Quote History:** Persists all quote requests for auditing and analytics.
+- **Admin Dashboard:** View and export the latest 50 quotes as CSV.
+- **Role-Based Access:** JWT authentication and Casbin authorization for admin endpoints.
+- **Swagger Docs:** Interactive API documentation and testing.
+
+---
 
 ## Technology Stack
 
-- **Framework**: [NestJS](https://nestjs.com/)
-- **Language**: TypeScript
-- **Database**: MySQL
-- **ORM**: TypeORM
-- **API Integration**: Axios for HTTP requests to CoinGecko
-- **Authentication**: Basic JWT setup (incomplete)
-- **Authorization**: Casbin for role-based access control (configured but not implemented)
+- **Framework:** [NestJS](https://nestjs.com/)
+- **Language:** TypeScript
+- **Database:** MySQL (via TypeORM)
+- **API Integration:** Axios (CoinGecko)
+- **Authentication:** JWT
+- **Authorization:** Casbin
+- **API Docs:** Swagger (OpenAPI)
 
-## Project Structure
+---
 
-The project follows a standard NestJS modular architecture:
+## Architecture & Project Structure
 
 ```
-src
-├── admin         # Handles admin-specific functionality
-├── auth          # Manages user authentication and JWT strategy
-├── common        # Shared modules, entities, and constants
-├── quote         # Core logic for generating quotes
-├── main.ts       # Application entry point
-└── app.module.ts # Root module
+src/
+├── admin/         # Admin endpoints and services
+├── auth/          # JWT auth and Casbin guards
+├── common/        # Shared modules, decorators, filters
+├── quote/         # Quote logic and services
+├── main.ts        # App entry point
+└── app.module.ts  # Root module
 ```
 
-## API Endpoints
+---
+
+## API Documentation
+
+- **Swagger UI:**  
+  - **Staging:** `https://konvert-poc.onrender.com/docs`
+- **Usage:**  
+  - Authenticate via JWT (see `/auth/login` if available).
+  - Interact with all endpoints, view schemas, and try requests.
+
+---
+
+## Endpoints
 
 ### Public Endpoints
 
 - **POST `/api/quote`**
-  - **Status**: ⚠️ **Not Implemented**. The core logic exists in `QuoteService`, but the controller endpoint has not been created.
-  - **Description**: Intended to accept a USDT amount and a destination country to return a real-time conversion quote.
+  - **Description:** Convert a USDT amount to a local fiat currency.
+  - **Body:**  
+    ```json
+    {
+      "amount": 100,
+      "country": "NG"
+    }
+    ```
+  - **Response:**  
+    ```json
+    {
+      "fiatAmount": 153000,
+      "fee": 1530,
+      "rate": 1530,
+      "currency": "NGN"
+    }
+    ```
 
 ### Admin Endpoints
 
+> **All admin endpoints require JWT authentication and appropriate Casbin permissions.**
+
 - **GET `/admin`**
-  - **Status**: ✅ **Implemented**
-  - **Description**: Retrieves the last 50 quotes from the database.
-  - **Protection**: ⚠️ **Unprotected**. This endpoint is currently public and lacks admin-only access control.
+  - **Description:** Retrieve the 50 most recent quotes.
+  - **Response:** Array of quote objects.
 
 - **GET `/admin/export`**
-  - **Status**: ⚠️ **Not Implemented**. The service logic `exportToCSV` exists, but it is not exposed via a controller endpoint.
-  - **Description**: Intended to export the last 50 quotes to a CSV file.
+  - **Description:** Download the latest 50 quotes as a CSV file.
+  - **Response:** `text/csv` file download.
+  - **Note:** Swagger UI cannot download files directly. Use Postman, curl, or a browser.
 
-## Setup and Installation
+---
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    ```
+## Setup & Installation
 
-2.  **Install dependencies:**
+1. **Clone the repository**
+
+2. **Install dependencies**
     ```bash
     pnpm install
     ```
 
-3.  **Set up environment variables:**
-    Create a `.env` file in the root directory and populate it with the necessary values (see `.env.example` if available).
-    ```
-    COIN_GECKO_API_URL=https://api.coingecko.com/api/v3
-    CONVERSION_FEE_PERCENTAGE=0.01
-    DB_HOST=localhost
-    DB_PORT=3306
-    DB_USERNAME=user
-    DB_PASSWORD=password
-    DB_DATABASE=konvert
-    JWT_SECRET=your-secret-key
-    ```
+3. **Configure environment**
+    - Copy `.env.example` to `.env` and fill in values (see below).
 
-4.  **Run database migrations:**
+4. **Run database migrations**
     ```bash
     pnpm typeorm migration:run
     ```
 
-5.  **Start the development server:**
+5. **Start the server**
     ```bash
     pnpm start:dev
     ```
+    The API will be available at `http://localhost:3000`.
 
-The application will be running at `http://localhost:3000`.
+---
 
-## Gap Analysis & Future Improvements
+## Environment Variables
 
-This section outlines the discrepancies between the project requirements and the current implementation.
+Example `.env`:
+```
+COIN_GECKO_API_URL=https://api.coingecko.com/api/v3
+CONVERSION_FEE_PERCENTAGE=0.01
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=user
+DB_PASSWORD=password
+DB_DATABASE=konvert
+JWT_SECRET=your-secret-key
+```
 
-- **`POST /api/quote` Endpoint**: The `QuoteController` is missing the route handler to expose the `getQuote` service method. This is the highest priority gap.
+---
 
-- **Admin Endpoint for CSV Export**: The `exportToCSV` method in `AdminService` is not connected to any controller route, making it inaccessible via the API.
+## Testing File Downloads
 
-- **Security**: 
-  - **Admin Protection**: The admin endpoints are not protected. The existing Casbin configuration should be integrated using a guard to restrict access to authorized administrators.
-  - **Input Validation**: There is no validation on the `GetQuoteInput` DTO. Validation pipes should be added to handle invalid inputs like negative amounts or unsupported country codes.
-  - **Rate Limiting**: The API is vulnerable to abuse. A rate-limiting solution (e.g., `nestjs-throttler`) should be implemented.
+- **Swagger UI:** Cannot download files directly; will show a JSON object instead.
+- **Postman:**  
+  - Send a `GET` request to `/admin/export` with JWT token.
+  - Save the response as a file.
+- **curl:**  
+    ```bash
+    curl -X GET "https://<domain>/admin/export" -H "Authorization: Bearer <token>" -o quotes.csv
+    ```
 
-- **Dynamic Fee Structure**: The fee is calculated using a single, hardcoded percentage. The system should be enhanced to support a dynamic, country-based fee structure, potentially managed via a separate database table.
+---
 
-- **Error Handling**: The current error handling is basic. A more robust global exception filter should be implemented to provide clear and consistent error responses.
+## Security
+
+- **Authentication:** JWT required for all admin endpoints.
+- **Authorization:** Casbin RBAC restricts access to sensitive routes.
+- **Input Validation:** DTO validation for all inputs.
+- **Rate Limiting:** To prevent abuse.
+
+---
+
+---
+
+## License
 

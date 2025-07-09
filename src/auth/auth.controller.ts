@@ -9,8 +9,8 @@ import { UserWithAuth } from './dto/responses/auth.response';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @UseFilters(HttpExceptionFilter)
-@UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
